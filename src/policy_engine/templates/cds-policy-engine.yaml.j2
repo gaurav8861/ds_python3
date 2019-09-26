@@ -1,0 +1,45 @@
+{# Copyright 2019, Cray Inc. All Rights Reserved. #}
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: cds-policy-engine
+  namespace: {{ cds_namespace }}
+  labels:
+    app: cpe
+spec:
+  selector:
+    matchLabels:
+      app: cpe
+  template:
+    metadata:
+      name: cds-policy-engine
+      namespace: {{ cds_namespace }}
+      labels:
+        app: cpe
+    spec:
+      hostname: cds-policy-engine
+      containers:
+      - name: cds-policy-engine
+        image: {{ cpe_image }}
+        env:
+        - name: POD_TYPE
+          value: "cpe"
+        - name: DAEMON_PAUSE
+          value: "{{cpe_daemon_pause}}"
+        - name: VERBOSE
+          value: ""
+        volumeMounts:
+{% if 'is a mountpoint' in policy_engine_enable_lustre.stdout %}
+        - mountPath: {{ cds_lustre_client_mp }}
+          name: lustre1
+{% endif %}
+        securityContext:
+          privileged: true
+      volumes:
+{% if 'is a mountpoint' in policy_engine_enable_lustre.stdout %}
+      - name: lustre1
+        hostPath:
+            # Dir on host
+          path: {{ cds_lustre_client_mp }}
+{% endif %}

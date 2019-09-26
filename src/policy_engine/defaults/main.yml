@@ -1,0 +1,14 @@
+# Copyright 2019, Cray Inc. All Rights Reserved.
+
+
+# Tunables for debugging
+# --------------------------
+
+# Set to "true" to start the pods but not start the daemons.
+# Policy Engine
+cpe_daemon_pause: ""
+
+cpe_image_folder: "cds"
+cpe_image_version: "latest"
+cpe_base_name: "cds-policy-engine"
+cpe_image: "{{ cray_stack_registry_source_latest_cds }}/{{ cpe_image_folder }}/{{ cpe_base_name }}:{{ cpe_image_version }}"

@@ -1,0 +1,28 @@
+---
+# Copyright 2019, Cray Inc. All Rights Reserved.
+
+# Handle the Kubernetes config file.
+# ----------------------------------
+
+- name: Determine whether {{cds_lustre_client_mp}}  exists, whether lustre is mounted.
+  shell: mountpoint {{cds_lustre_client_mp}}
+  register: policy_engine_enable_lustre
+  # Pick a fail mode that cannot happen.
+  failed_when: policy_engine_enable_lustre.rc > 1
+  when: "inventory_hostname == groups['managers'][0]"
+
+- name: Create Policy Engine Kubernetes file
+  template:
+    src: cds-policy-engine.yaml.j2
+    dest: /root/k8s/cds-policy-engine.yaml
+  run_once: true
+
+- name: Apply Policy Engine Kubernetes config
+  command: kubectl apply -f cds-policy-engine.yaml
+  args:
+    chdir: /root/k8s
+  when: "inventory_hostname == groups['managers'][0]"
+
+- name: Record that CDS Policy Engine ran
+  set_fact:
+    cds_flash_maintenance_ran: True
